@@ -1,2 +1,2 @@
-# potential-guacamole
+# Invoicify
 Invoice app 
