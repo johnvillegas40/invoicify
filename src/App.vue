@@ -1,7 +1,6 @@
 <template>
 
- <div :class="(darkModeState) ? 'h-screen overflow-hidden bg-app-color-12' : 'h-screen overflow-hidden bg-app-color-11'">
-   <Header />
+ <div :class="(darkModeState) ? 'h-screen overflow-auto bg-app-color-12' : 'h-screen overflow-auto bg-app-color-11'">
     <router-view></router-view>
  </div>
 </template>
@@ -13,7 +12,6 @@ import { darkModeState } from './state.js'
 export default {
   components: { Header },
   setup(){
-    // const darkMode = darkModeState.value;
     return {darkModeState}
   }
 }
@@ -24,10 +22,6 @@ export default {
 #app {
   
   font-family: 'Spartan', sans-serif;
-  /* -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px; */
+
 }
 </style>

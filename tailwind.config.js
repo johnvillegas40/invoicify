@@ -17,7 +17,8 @@ module.exports = {
         'app-color-10': '#9277FF',
         'app-color-11': '#F8F8FB',
         'app-color-12': '#141625',
-        'app-color-border': '#494E6E'
+        'app-color-border': '#494E6E',
+        'app-color-new': '#777F98'
       },
     },
   },
