@@ -18,7 +18,14 @@ module.exports = {
         'app-color-11': '#F8F8FB',
         'app-color-12': '#141625',
         'app-color-border': '#494E6E',
-        'app-color-new': '#777F98'
+        'app-color-new': '#777F98',
+        'app-color-gradient': '#979797',
+        'app-color-discard': '#F9FAFE',
+        'app-color-idn': '#858BB2', // idn stands for invoice display name
+        'app-color-paid': '#33D69F',
+        'app-color-pending': '#FF8F00',
+        'app-color-view-bg': '#F2F2F2',
+        'app-color-delete': '#EC5757',
       },
     },
   },
