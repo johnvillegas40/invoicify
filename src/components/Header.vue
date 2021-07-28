@@ -7,7 +7,7 @@
     </div>
     <div class="h-20 px-6 border-l border-app-color-border flex flex-row items-center justify-center">
       <div class="h-10 w-10 border-black border rounded-full overflow-hidden">
-        <img src="../assets/image-avatar.jpg" class="object-contain" alt="" />
+        <img src="../assets/image-avatar.jpg" class="object-contain animate-spin" alt="" />
       </div>
     </div>
   </div>

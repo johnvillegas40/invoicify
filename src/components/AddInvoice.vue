@@ -1,10 +1,15 @@
 <template>
-  <div @click="clickModal" class="flex flex-row w-full">
+  <div v-if="!isEdit" @click="clickModal" class="flex flex-row w-full">
     <img src="../assets/icon-arrow-left.svg" class="mt-2 mr-2 mb-2" alt="" />
     <p :class="darkModeState ? 'ml-3 mt-2 text-xs font-bold text-white' : 'ml-3 mt-2 text-xs font-bold'">Go back</p>
   </div>
   <div class="mt-6">
-    <p :class="darkModeState ? 'text-3xl font-bold text-white' : ' text-3xl font-bold'">New Invoice</p>
+    <div v-if="!isEdit">
+      <p :class="darkModeState ? 'text-3xl font-bold text-white' : ' text-3xl font-bold'">New Invoice</p>
+    </div>
+    <div v-else>
+      <p :class="darkModeState ? 'text-3xl font-bold text-white' : ' text-3xl font-bold'">Edit #{{ invoice.id }}</p>
+    </div>
   </div>
   <!-- Bill From -->
   <div class="mt-6">
@@ -18,6 +23,7 @@
             : 'w-full text-xs font-semibold outline-none bg-transparent text-app-color-8'
         "
         type="text"
+        v-model="invoice.senderAddress.street"
       />
     </div>
 
@@ -32,6 +38,7 @@
                 : 'w-full text-xs font-semibold outline-none bg-transparent text-app-color-8'
             "
             type="text"
+            v-model="invoice.senderAddress.city"
           />
         </div>
       </div>
@@ -45,6 +52,7 @@
                 : 'w-full text-xs font-semibold outline-none bg-transparent text-app-color-8'
             "
             type="text"
+            v-model="invoice.senderAddress.postCode"
           />
         </div>
       </div>
@@ -58,6 +66,7 @@
             : 'w-full text-xs font-semibold outline-none bg-transparent text-app-color-8'
         "
         type="text"
+        v-model="invoice.senderAddress.country"
       />
     </div>
   </div>
@@ -73,6 +82,7 @@
             : 'w-full text-xs font-semibold outline-none bg-transparent text-app-color-8'
         "
         type="text"
+        v-model="invoice.clientName"
       />
     </div>
     <p class="text-xs mt-5 text-app-color-7 font-medium">Client's Email</p>
@@ -84,6 +94,7 @@
             : 'w-full text-xs font-semibold outline-none bg-transparent text-app-color-8'
         "
         type="text"
+        v-model="invoice.clientEmail"
       />
     </div>
     <p class="text-xs mt-5 text-app-color-7 font-medium">Street Address</p>
@@ -95,6 +106,7 @@
             : 'w-full text-xs font-semibold outline-none bg-transparent text-app-color-8'
         "
         type="text"
+        v-model="invoice.clientAddress.street"
       />
     </div>
 
@@ -109,6 +121,7 @@
                 : 'w-full text-xs font-semibold outline-none bg-transparent text-app-color-8'
             "
             type="text"
+            v-model="invoice.clientAddress.city"
           />
         </div>
       </div>
@@ -122,6 +135,7 @@
                 : 'w-full text-xs font-semibold outline-none bg-transparent text-app-color-8'
             "
             type="text"
+            v-model="invoice.clientAddress.postCode"
           />
         </div>
       </div>
@@ -135,6 +149,7 @@
             : 'w-full text-xs font-semibold outline-none bg-transparent text-app-color-8'
         "
         type="text"
+        v-model="invoice.clientAddress.country"
       />
     </div>
     <!-- Invoice Info -->
@@ -149,16 +164,22 @@
               : 'w-full text-xs font-semibold outline-none bg-transparent text-app-color-8'
           "
           type="date"
+          v-model="invoice.createdAt"
         />
       </div>
       <p class="text-xs mt-5 text-app-color-7 font-medium">Payment Terms</p>
       <div class="mt-2 border border-app-color-5 h-10 rounded-md flex flex-col justify-center items-center pl-5 pr-5">
         <!-- <input class="w-full text-xs font-semibold outline-none" type="text"> -->
-        <select class="w-full text-xs font-semibold outline-none bg-transparent" name="select" id="">
-          <option value="">Net 1 Day</option>
-          <option value="">Net 10 Day</option>
-          <option value="">Net 30 Day</option>
-          <option value="">Net 60 Day</option>
+        <select
+          class="w-full text-xs font-semibold outline-none bg-transparent"
+          name="select"
+          id=""
+          v-model="invoice.paymentTerms"
+        >
+          <option value="1">Net 1 Day</option>
+          <option value="7">Net 7 Day</option>
+          <option value="14">Net 14 Day</option>
+          <option value="30">Net 30 Day</option>
         </select>
       </div>
       <p class="text-xs mt-5 text-app-color-7 font-medium">Project Description</p>
@@ -170,88 +191,94 @@
               : 'w-full text-xs font-semibold outline-none bg-transparent text-app-color-8'
           "
           type="text"
+          v-model="invoice.description"
         />
       </div>
     </div>
     <!-- ITEM INFO -->
     <div class="mt-20">
       <p class="text-xl text-app-color-new font-bold">Item List</p>
-      <div v-for="num in 3">
-        <p class="text-xs mt-5 text-app-color-7 font-medium">Item Name</p>
-        <div class="mt-2 border border-app-color-5 h-10 rounded-md flex flex-col justify-center items-center pl-5 pr-5">
-          <input
-            :class="
-              darkModeState
-                ? 'w-full text-xs font-semibold outline-none bg-transparent text-white'
-                : 'w-full text-xs font-semibold outline-none bg-transparent text-app-color-8'
-            "
-            type="text"
-          />
-        </div>
+        <div v-for="item in invoice.items">
+          <p class="text-xs mt-5 text-app-color-7 font-medium">Item Name</p>
+          <div
+            class="mt-2 border border-app-color-5 h-10 rounded-md flex flex-col justify-center items-center pl-5 pr-5"
+          >
+            <input
+              :class="
+                darkModeState
+                  ? 'w-full text-xs font-semibold outline-none bg-transparent text-white'
+                  : 'w-full text-xs font-semibold outline-none bg-transparent text-app-color-8'
+              "
+              type="text"
+              v-model="item.name"
+            />
+          </div>
 
-        <div class="flex flex-row">
-          <div class="flex flex-col mr-12">
-            <p class="text-xs mt-5 text-app-color-7 font-medium">Qty.</p>
-            <div
-              class="
-                mt-2
-                mr-12
-                border border-app-color-5
-                h-10
-                rounded-md
-                flex flex-col
-                justify-center
-                items-center
-                pl-5
-                pr-5
-              "
-            >
-              <input
-                :class="
-                  darkModeState
-                    ? 'w-full text-xs font-semibold outline-none bg-transparent text-white'
-                    : 'w-full text-xs font-semibold outline-none bg-transparent text-app-color-8'
+          <div class="flex flex-row">
+            <div class="flex flex-col mr-12">
+              <p class="text-xs mt-5 text-app-color-7 font-medium">Qty.</p>
+              <div
+                class="
+                  mt-2
+                  mr-12
+                  border border-app-color-5
+                  h-10
+                  rounded-md
+                  flex flex-col
+                  justify-center
+                  items-center
+                  pl-5
+                  pr-5
                 "
-                type="text"
-              />
+              >
+                <input
+                  :class="
+                    darkModeState
+                      ? 'w-full text-xs font-semibold outline-none bg-transparent text-white'
+                      : 'w-full text-xs font-semibold outline-none bg-transparent text-app-color-8'
+                  "
+                  type="text"
+                  v-model="item.quantity"
+                />
+              </div>
             </div>
-          </div>
-          <div class="flex flex-col -ml-12">
-            <p class="text-xs -ml-8 mt-5 text-app-color-7 font-medium">Price</p>
-            <div
-              class="
-                mt-2
-                -ml-8
-                border border-app-color-5
-                h-10
-                rounded-md
-                flex flex-col
-                justify-center
-                items-center
-                pl-5
-                pr-5
-              "
-            >
-              <input
-                :class="
-                  darkModeState
-                    ? 'w-full text-xs font-semibold outline-none bg-transparent text-white'
-                    : 'w-full text-xs font-semibold outline-none bg-transparent text-app-color-8'
+            <div class="flex flex-col -ml-12">
+              <p class="text-xs -ml-8 mt-5 text-app-color-7 font-medium">Price</p>
+              <div
+                class="
+                  mt-2
+                  -ml-8
+                  border border-app-color-5
+                  h-10
+                  rounded-md
+                  flex flex-col
+                  justify-center
+                  items-center
+                  pl-5
+                  pr-5
                 "
-                type="text"
-              />
+              >
+                <input
+                  :class="
+                    darkModeState
+                      ? 'w-full text-xs font-semibold outline-none bg-transparent text-white'
+                      : 'w-full text-xs font-semibold outline-none bg-transparent text-app-color-8'
+                  "
+                  type="text"
+                  v-model="item.price"
+                />
+              </div>
             </div>
-          </div>
-          <div class="flex flex-col ml-5">
-            <p class="text-xs mt-5 text-app-color-7 font-medium">Total</p>
-            <p class="text-xs mt-5 text-app-color-7 font-medium">156.00</p>
-            <!-- <div class="mt-2 border border-app-color-5 h-10 rounded-md flex flex-col justify-center items-center pl-5 pr-5">
+            <div class="flex flex-col ml-5">
+              <p class="text-xs mt-5 text-app-color-7 font-medium">Total</p>
+              <p class="text-xs mt-5 text-app-color-7 font-medium">{{ item.totaldollar }}</p>
+              <!-- <div class="mt-2 border border-app-color-5 h-10 rounded-md flex flex-col justify-center items-center pl-5 pr-5">
                         <input class="w-full text-xs font-semibold outline-none" type="text">
                     </div> -->
+            </div>
+            <img src="../assets/icon-delete.svg" class="pt-10 pb-10 mt-3 ml-20" alt="" />
           </div>
-          <img src="../assets/icon-delete.svg" class="pt-10 pb-10 mt-3 ml-20" alt="" />
         </div>
-      </div>
       <div class="mt-2 border border-app-color-5 h-10 rounded-full flex flex-row justify-center items-center pl-5 pr-5">
         <img class="p-2" src="../assets/icon-plus.svg" alt="" />
         <p class="text-sm pt-1 text-app-color-7">Add New Item</p>
@@ -259,15 +286,15 @@
       <div class="-mx-7 h-24 bg-gradient-to-b from-white to-black opacity-5"></div>
     </div>
   </div>
-  <div class="flex flex-row-reverse h-20 mb-24 mt-2 items-center">
-    <SaveButton :buttonText="'Save & Send'" />
+  <div v-if="!isEdit" class="flex flex-row-reverse h-20 mb-24 mt-2 items-center">
+    <SaveButton @click="clickSubmit" :buttonText="'Save & Send'" />
     <SaveDraft class="mr-2" />
     <DiscardButton class="mr-2" />
   </div>
 </template>
 
 <script>
-import { ref, toRefs,  } from "vue";
+import { ref, toRefs } from "vue";
 import { darkModeState } from "../state";
 import AddButton from "./AddButton.vue";
 import Header from "./Header.vue";
@@ -283,14 +310,51 @@ export default {
     DiscardButton,
   },
   emits: ["closeModal"],
-
+  props: ["invoice"],
   setup(props, { emit }) {
+    const isEdit = props.invoice ? true : false;
+    const invoice = props.invoice ? ref(props.invoice) : ref({
+    "id": "",
+    "createdAt": "",
+    "paymentDue": "",
+    "description": "",
+    "paymentTerms": null,
+    "clientName": "",
+    "clientEmail": "",
+    "status": "",
+    "senderAddress": {
+      "street": "",
+      "city": "",
+      "postCode": "",
+      "country": ""
+    },
+    "clientAddress": {
+      "street": "",
+      "city": "",
+      "postCode": "",
+      "country": ""
+    },
+    "items": [
+      {
+        "name": "",
+        "quantity": null,
+        "price": null,
+        "total": null
+      }
+    ],
+    "total": null
+    });
+    
+    const clickSubmit = () => {
+      console.log(invoice.value)
+    }
+    const newItems = ref({});
     const { testModal } = toRefs(props);
     const clickModal = () => {
       emit("closeModal", false);
     };
 
-    return { darkModeState, clickModal };
+    return { darkModeState, clickModal, invoice, isEdit, newItems, clickSubmit };
   },
 };
 </script>
